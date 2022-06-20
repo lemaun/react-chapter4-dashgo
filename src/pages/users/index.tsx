@@ -1,12 +1,22 @@
-import { Box, Button, Checkbox, Flex, Heading, Icon, Spinner, Table, Tbody, Td, Text, Th, Thead, Tr, useBreakpointValue } from "@chakra-ui/react";
-import Link from "next/link";
-import { useQuery } from 'react-query'
+import { Box, Button, Checkbox, Flex, Heading, Icon, Link, Spinner, Table, Tbody, Td, Text, Th, Thead, Tr, useBreakpointValue } from "@chakra-ui/react";
+import NextLink from "next/link";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 import { Header } from "../../components/Header/index";
 import { Pagination } from "../../components/Pagination";
 import { Sidebar } from "../../components/Sidebar/index";
 import { useUsers } from "../../services/hooks/useUsers";
 import { useState } from "react";
+import { queryClient } from "../../services/queryClient";
+import { api } from "../../services/api";
+
+async function handlePrefetchUser(userId: string) {
+  await queryClient.prefetchQuery(['user', userId], async () => {
+    const response = await api.get(`users/${userId}`)
+    return response.data
+  }, {
+    staleTime: 1000 * 60 * 10 // 10 minutes
+  })
+}
 
 export default function UserList() {
   const [page, setPage] = useState(1);
@@ -30,11 +40,11 @@ export default function UserList() {
               {!isLoading && isFetching && <Spinner size="sm" color="grey.500" />}
             </Heading>
 
-            <Link href="/users/create" passHref>
+            <NextLink href="/users/create" passHref>
               <Button as="a" size="sm" fontSize="sm" colorScheme="pink" leftIcon={<Icon as={RiAddLine}  fontSize="20" />}>
                 Criar Novo
               </Button>
-            </Link>
+            </NextLink>
 
           </Flex>
           { isLoading ? (
@@ -63,7 +73,9 @@ export default function UserList() {
                         </Td>
                         <Td>
                           <Box>
-                            <Text fontWeight="bold">{user.name}</Text>
+                            <Link onMouseEnter={() => handlePrefetchUser(user.id)} color="purple.400">
+                              <Text fontWeight="bold">{user.name}</Text>
+                            </Link>
                             <Text fontSize="sm" color="gray.300">{user.email}</Text>
                           </Box>
                         </Td>
