@@ -27,7 +27,7 @@ export async function getUsers(page: number): Promise<GetUsersResponse> {
       id: user.id,
       name: user.name,
       email: user.email,
-      createdAt: new Date(user.createdAt).toLocaleDateString('pt-Br', {
+      createdAt: new Date(user.created_at).toLocaleDateString('pt-Br', {
         day: '2-digit',
         month: 'long',
         year: 'numeric'
